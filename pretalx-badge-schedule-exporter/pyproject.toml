@@ -1,0 +1,38 @@
+[project]
+name = "pretalx-badge-schedule-exporter"
+dynamic = ["version"]
+description = "Generates minimal schedule json export files for consumption by embedded systems such as the conference badges by badge.team"
+readme = "README.rst"
+license = {text = "Apache Software License"}
+keywords = ["pretalx"]
+authors = [
+  {name = "SqyD", email = "paul@krischer.nl"},
+]
+maintainers = [
+  {name = "SqyD", email = "paul@krischer.nl"},
+]
+
+dependencies = []
+
+[project.urls]
+homepage = "https://github.com/SqyD/pretalx-badge"
+repository = "https://github.com/SqyD/pretalx-badge.git"
+
+[project.entry-points."pretalx.plugin"]
+pretalx_badge_schedule_exporter = "pretalx_badge_schedule_exporter:PretalxPluginMeta"
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "pretalx_badge_schedule_exporter.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["pretalx*"]
+
+[tool.check-manifest]
+ignore = [".*"]

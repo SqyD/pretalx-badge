@@ -1,0 +1,6 @@
+recursive-include pretalx_badge_schedule_exporter/static *
+recursive-include pretalx_badge_schedule_exporter/templates *
+exclude pretalx_badge_schedule_exporter/locale/django.pot
+recursive-include pretalx_badge_schedule_exporter/locale *
+recursive-include pretalx_badge_schedule_exporter *.py
+include Makefile
