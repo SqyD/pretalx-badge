@@ -26,7 +26,7 @@ urlpatterns = [
         include(
             [
                 path(
-                    "schedule/badge/<str:room>_day<int:day>.json",
+                    "schedule/badge/<int:room>_day<int:day>.json",
                     BadgeScheduleExportRoomDay.as_view(),
                     # ExporterView.as_view(),
                     # name="export.schedule.badge_schedule_roomday",
