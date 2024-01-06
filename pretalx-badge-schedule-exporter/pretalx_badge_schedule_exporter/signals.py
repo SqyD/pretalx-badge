@@ -2,7 +2,7 @@
 from django.dispatch import receiver
 from django.urls import reverse
 from pretalx.orga.signals import nav_event_settings
-
+from pretalx.common.signals import register_data_exporters
 
 @receiver(nav_event_settings)
 def pretalx_badge_schedule_exporter_settings(sender, request, **kwargs):
@@ -20,3 +20,8 @@ def pretalx_badge_schedule_exporter_settings(sender, request, **kwargs):
         }
     ]
 
+@receiver(register_data_exporters, dispatch_uid="exporter_badge")
+def register_data_exporter(sender, **kwargs):
+    from .exporter import BadgeExporter
+
+    return BadgeExporter
