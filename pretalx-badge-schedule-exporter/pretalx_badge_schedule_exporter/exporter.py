@@ -14,7 +14,7 @@ from pretalx.schedule.exporters import ScheduleData
 from pretalx.common.urls import get_base_url
 
 
-class BadgeExporter(ScheduleData):
+class BadgeExporterBase(ScheduleData):
     identifier = "badge_schedule_base.json"
     verbose_name = "JSON (badge optimized)"
     public = True
@@ -52,6 +52,52 @@ class BadgeExporter(ScheduleData):
                 ],
             },
         }
+
+    def render(self, **kwargs):
+        content = self.get_data()
+        return (
+            f"{self.event.slug}.json".format(self.event.slug),
+            "application/json",
+            json.dumps({"schedule": content}, cls=I18nJSONEncoder),
+        )
+
+class BadgeExporterRoomDay(ScheduleData):
+    identifier = "badge_schedule_room_day.json"
+    verbose_name = "JSON (badge optimized)"
+    public = True
+    icon = "{ }"
+    cors = "*"
+
+
+    def get_data(self, **kwargs):
+        schedule = self.schedule
+        thisday = self.day
+        thisroom = self.room
+        talk_data = {}
+        for day in self.data:
+            if day['index'] == thisday:
+               for room in day["rooms"]:
+                   if room['id'] == thisroom:
+                        for talk in room["talks"]:
+                            index = talk.id
+                            talk_data[index] = {
+                                "id": talk.submission.id,
+                                "start": talk.local_start.strftime("%H:%M"),
+                                "duration": talk.export_duration,
+                                "title": talk.submission.title,
+                                "type": str(talk.submission.submission_type.name),
+                                "language": talk.submission.content_locale,
+                                "abstract": talk.submission.abstract,
+                                "persons": [
+                                    {
+                                        "id": person.id,
+                                        "public_name": person.get_display_name()
+                                    }
+                                    for person in talk.submission.speakers.all()
+                                ],
+                            }
+        return talk_data
+
 
     def render(self, **kwargs):
         content = self.get_data()

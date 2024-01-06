@@ -20,8 +20,14 @@ def pretalx_badge_schedule_exporter_settings(sender, request, **kwargs):
         }
     ]
 
-@receiver(register_data_exporters, dispatch_uid="exporter_badge")
-def register_data_exporter(sender, **kwargs):
-    from .exporter import BadgeExporter
+@receiver(register_data_exporters, dispatch_uid="exporter_badge_base")
+def register_badge_base_exporter(sender, **kwargs):
+    from .exporter import BadgeExporterBase
 
-    return BadgeExporter
+    return BadgeExporterBase
+
+@receiver(register_data_exporters, dispatch_uid="exporter_badge_room_day")
+def register_badge_room_day_exporter(sender, **kwargs):
+    from .exporter import BadgeExporterRoomDay
+
+    return BadgeExporterRoomDay
