@@ -34,9 +34,6 @@ class BadgeScheduleExportRoomDay(ExporterView):
     def get_exporter(self, request):
         url = resolve(request.path_info)
         exporter = url.url_name
-        exporter = (
-            exporter[len("export.") :] if exporter.startswith("export.") else exporter
-        )
         responses = register_data_exporters.send(request.event)
         for __, response in responses:
             ex = response(request.event)
@@ -44,4 +41,16 @@ class BadgeScheduleExportRoomDay(ExporterView):
                 if ex.public or request.is_orga:
                     ex.day = int(url.kwargs.get("day"))
                     ex.room = int(url.kwargs.get("room"))
+                    return ex
+
+class BadgeScheduleTalk(ExporterView):
+    def get_exporter(self, request):
+        url = resolve(request.path_info)
+        exporter = url.url_name
+        responses = register_data_exporters.send(request.event)
+        for __, response in responses:
+            ex = response(request.event)
+            if ex.identifier == exporter:
+                if ex.public or request.is_orga:
+                    ex.talk = int(url.kwargs.get("talk"))
                     return ex

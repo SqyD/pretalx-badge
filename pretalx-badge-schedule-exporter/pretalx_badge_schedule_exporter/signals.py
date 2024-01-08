@@ -31,3 +31,9 @@ def register_badge_room_day_exporter(sender, **kwargs):
     from .exporter import BadgeExporterRoomDay
 
     return BadgeExporterRoomDay
+
+@receiver(register_data_exporters, dispatch_uid="exporter_badge_talk")
+def register_badge_talk_exporter(sender, **kwargs):
+    from .exporter import BadgeExporterTalk
+
+    return BadgeExporterTalk

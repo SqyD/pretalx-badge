@@ -15,8 +15,8 @@ from pretalx.common.urls import get_base_url
 
 
 class BadgeExporterBase(ScheduleData):
-    identifier = "badge_schedule_base.json"
-    verbose_name = "JSON (badge optimized)"
+    identifier = "badge_schedule_base"
+    verbose_name = "Conference Basic info as JSON (badge optimized)"
     public = True
     icon = "{ }"
     cors = "*"
@@ -36,7 +36,7 @@ class BadgeExporterBase(ScheduleData):
                 "rooms": [
                     {
                         "name": str(room.name),
-                        "guid": room.guid,
+                        "id": room.id,
                         "description": str(room.description) or None,
                     }
                     for room in self.event.rooms.all()
@@ -58,12 +58,12 @@ class BadgeExporterBase(ScheduleData):
         return (
             f"{self.event.slug}.json".format(self.event.slug),
             "application/json",
-            json.dumps({"schedule": content}, cls=I18nJSONEncoder),
+            json.dumps({"event": content}, cls=I18nJSONEncoder),
         )
 
 class BadgeExporterRoomDay(ScheduleData):
-    identifier = "badge_schedule_room_day.json"
-    verbose_name = "JSON (badge optimized)"
+    identifier = "badge_schedule_room_day"
+    verbose_name = "Schedule by Room and Day (badge optimized)"
     public = True
     icon = "{ }"
     cors = "*"
@@ -73,30 +73,20 @@ class BadgeExporterRoomDay(ScheduleData):
         schedule = self.schedule
         thisday = self.day
         thisroom = self.room
-        talk_data = {}
+        talks_data = {}
         for day in self.data:
             if day['index'] == thisday:
                for room in day["rooms"]:
                    if room['id'] == thisroom:
                         for talk in room["talks"]:
                             index = talk.id
-                            talk_data[index] = {
+                            talks_data[index] = {
                                 "id": talk.submission.id,
                                 "start": talk.local_start.strftime("%H:%M"),
                                 "duration": talk.export_duration,
                                 "title": talk.submission.title,
-                                "type": str(talk.submission.submission_type.name),
-                                "language": talk.submission.content_locale,
-                                "abstract": talk.submission.abstract,
-                                "persons": [
-                                    {
-                                        "id": person.id,
-                                        "public_name": person.get_display_name()
-                                    }
-                                    for person in talk.submission.speakers.all()
-                                ],
                             }
-        return talk_data
+        return talks_data
 
 
     def render(self, **kwargs):
@@ -105,4 +95,52 @@ class BadgeExporterRoomDay(ScheduleData):
             f"{self.event.slug}.json".format(self.event.slug),
             "application/json",
             json.dumps({"schedule": content}, cls=I18nJSONEncoder),
+        )
+
+class BadgeExporterTalk(ScheduleData):
+    identifier = "badge_schedule_talk"
+    verbose_name = "Detailed talk info as JSON (badge optimized)"
+    public = True
+    icon = "{ }"
+    cors = "*"
+
+    def get_data(self, **kwargs):
+        schedule = self.schedule
+        thistalk = self.talk
+        print(thistalk)
+        for day in self.data:
+           for room in day["rooms"]:
+                for talk in room["talks"]:
+                    print(talk)
+                    if talk.submission.id == thistalk:
+                        talk_data = {
+                            "id": talk.submission.id,
+                            "date": talk.local_start.isoformat(),
+                            "start": talk.local_start.strftime("%H:%M"),
+                            "duration": talk.export_duration,
+                            "room": str(room["name"]),
+                            "title": talk.submission.title,
+                            "track": str(talk.submission.track.name)
+                            if talk.submission.track
+                            else None,
+                            "type": str(talk.submission.submission_type.name),
+                            "language": talk.submission.content_locale,
+                            "abstract": talk.submission.abstract,
+                            "description": talk.submission.description,
+                            "persons": [
+                                {
+                                    "id": person.id,
+                                    "public_name": person.get_display_name()
+                                }
+                                for person in talk.submission.speakers.all()
+                            ],
+                        }
+        return talk_data
+
+    def render(self, **kwargs):
+        content = self.get_data()
+        return (
+            f"{self.event.slug}.json".format(self.event.slug),
+            "application/json",
+            json.dumps({"talk": content}, cls=I18nJSONEncoder),
         )
